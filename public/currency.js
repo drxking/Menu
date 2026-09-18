@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;while((node=walker.nextNode())){if(node.nodeValue.includes('$'))node.nodeValue=node.nodeValue.replace(/\$/g,'₹')}});
