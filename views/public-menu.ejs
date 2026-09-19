@@ -1,1 +1,67 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= restaurant.name %></title><meta name="description" content="<%= restaurant.slogan || `Explore the menu for ${restaurant.name}.` %>"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/uploads.css"><link rel="stylesheet" href="/restaurant-menu.css"><link rel="stylesheet" href="/restaurant-overrides.css"><script defer src="/currency.js"></script></head><body class="restaurant-site"><header class="public-header"><div class="shell"><div class="public-menu-label">DIGITAL MENU</div><h1><%= restaurant.name %></h1><% if (restaurant.slogan) { %><p class="restaurant-slogan"><%= restaurant.slogan %></p><% } %></div></header><main class="shell public-menu"><% restaurant.collections.forEach(collection => { %><section class="menu-section"><h2><%= collection.name %></h2><% collection.products.forEach(product => { %><article class="product"><div><% if(product.imageUrl){ %><img class="product-image" src="<%= product.imageUrl %>" alt="<%= product.name %>"><% } %><strong><%= product.name %></strong><p><%= product.description %></p></div><strong>₹<%= product.price.toFixed(2) %></strong></article><% }) %></section><% }) %></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= restaurant.name %></title>
+  <meta name="description" content="<%= restaurant.slogan || `Explore the menu for ${restaurant.name}.` %>">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/uploads.css">
+  <link rel="stylesheet" href="/restaurant-menu.css">
+  <link rel="stylesheet" href="/restaurant-overrides.css">
+  <link
+  href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css"
+  rel="stylesheet"
+/>
+  <script defer src="/currency.js"></script>
+  <% if (restaurant.themeMusicUrl) { %><script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js" integrity="sha512-oJ8QbaQThQoJZ7oEv+29jfPM6CcP+zUxh3PKJs1vyOhx0UraUrE7PQgeItu3dOuCJyrzWpoYMsVjkkPEBzbUqw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><% } %>
+</head>
+<body class="restaurant-site <%= restaurant.themeMusicUrl ? 'has-theme-music' : '' %>">
+  <header class="public-header">
+    <% if (restaurant.themeMusicUrl) { %>
+      <section class="theme-record-hero" data-theme-player>
+        <div class="theme-record-stage"><div class="theme-vinyl-crop"><button class="vinyl" type="button" aria-label="Play restaurant theme music" aria-pressed="false"><img src="/images/vinyl.png" alt=""></button></div></div>
+        <div class="shell theme-controls"><button class="theme-toggle" type="button"><span aria-hidden="true"><i class="ri-play-large-fill"></i></span><span class="theme-toggle-text">Play theme</span></button></div>
+        <audio preload="metadata" src="<%= restaurant.themeMusicUrl %>"></audio>
+      </section>
+    <% } %>
+    <div class="shell theme-menu-heading">
+      <div class="public-menu-label">DIGITAL MENU</div>
+      <h1><%= restaurant.name %></h1>
+      <% if (restaurant.slogan) { %><p class="restaurant-slogan"><%= restaurant.slogan %></p><% } %>
+    </div>
+  </header>
+  <main class="shell public-menu">
+    <% restaurant.collections.forEach(collection => { %>
+      <section class="menu-section">
+        <h2><%= collection.name %></h2>
+        <% collection.products.forEach(product => { %>
+          <article class="product"><div><% if(product.imageUrl){ %><img class="product-image" src="<%= product.imageUrl %>" alt="<%= product.name %>"><% } %><strong><%= product.name %></strong><p><%= product.description %></p></div><strong>₹<%= product.price.toFixed(2) %></strong></article>
+        <% }) %>
+      </section>
+    <% }) %>
+  </main>
+  <% if (restaurant.themeMusicUrl) { %>
+    <script>
+      document.querySelectorAll('[data-theme-player]').forEach((player) => {
+        const vinyl = player.querySelector('.vinyl');
+        const button = player.querySelector('.theme-toggle');
+        const audio = player.querySelector('audio');
+        const secondsPerRotation = 3;
+        const anim = gsap.to(vinyl, { rotate: '360deg', repeat: -1, ease: 'none', duration: secondsPerRotation }).pause();
+        let stat = false, dragging = false, lastAngle = 0, dragCenter = null, totalRotation = 0;
+        function updateButton() { button.innerHTML = stat ? '<span aria-hidden="true"><i class="ri-pause-large-line"></i></span><span class="theme-toggle-text">Pause theme</span>' : '<span aria-hidden="true"><i class="ri-play-large-fill"></i></span><span class="theme-toggle-text">Play theme</span>'; vinyl.setAttribute('aria-pressed', stat); vinyl.setAttribute('aria-label', stat ? 'Pause restaurant theme music' : 'Play restaurant theme music'); }
+        function syncVinylToMusic() { if (dragging || !Number.isFinite(audio.duration)) return; totalRotation = (audio.currentTime / secondsPerRotation) * 360; anim.totalTime(audio.currentTime, true); }
+        function pointerAngle(event) { const bounds = vinyl.getBoundingClientRect(); const center = dragCenter || { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 }; return Math.atan2(event.clientY - center.y, event.clientX - center.x) * 180 / Math.PI; }
+        vinyl.addEventListener('pointerdown', (event) => { event.preventDefault(); const bounds = vinyl.getBoundingClientRect(); dragCenter = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 }; dragging = true; lastAngle = pointerAngle(event); totalRotation = (audio.currentTime / secondsPerRotation) * 360; stat = false; audio.pause(); anim.pause(); updateButton(); vinyl.setPointerCapture(event.pointerId); vinyl.classList.add('is-dragging'); });
+        vinyl.addEventListener('pointermove', (event) => { if (!dragging || !Number.isFinite(audio.duration)) return; const angle = pointerAngle(event); let delta = angle - lastAngle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; const maxRotation = (audio.duration / secondsPerRotation) * 360; totalRotation = Math.max(0, Math.min(maxRotation, totalRotation + delta)); gsap.set(vinyl, { rotation: totalRotation }); lastAngle = angle; });
+        const release = (event) => { if (!dragging) return; dragging = false; dragCenter = null; vinyl.classList.remove('is-dragging'); if (vinyl.hasPointerCapture(event.pointerId)) vinyl.releasePointerCapture(event.pointerId); if (Number.isFinite(audio.duration)) audio.currentTime = (totalRotation / 360) * secondsPerRotation; anim.totalTime(audio.currentTime, true); };
+        vinyl.addEventListener('pointerup', release); vinyl.addEventListener('pointercancel', release);
+        audio.addEventListener('loadedmetadata', syncVinylToMusic);
+        audio.addEventListener('ended', () => { stat = false; anim.pause(); updateButton(); });
+        button.addEventListener('click', async () => { stat = !stat; if (stat) { try { await audio.play(); syncVinylToMusic(); anim.play(); } catch (error) { stat = false; updateButton(); } } else { audio.pause(); syncVinylToMusic(); anim.pause(); } updateButton(); });
+      });
+    </script>
+  <% } %>
+</body>
+</html>

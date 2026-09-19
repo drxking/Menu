@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Demo App</title>
+    <style>
+        * {
+            font-family: doto;
+        }
+
+        @font-face {
+            font-family: doto;
+            src: url("Coconat-Demi.otf");
+        }
+
+        .rott {
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .rott.dragging {
+            cursor: grabbing;
+        }
+        .rott{
+            transition: 1s;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white">
+    <div class="-translate-y-[50vw] overflow-x-hidden">
+        <img src="copy.png" class="rott w-full" alt="" draggable="false">
+        <audio src="ras.mp3" class="music" preload="metadata"></audio>
+
+        <div class="w-full flex justify-end px-8">
+            <button
+                class="bg-[#C22229] h-10 w-10 rounded-full text-xl flex items-center justify-center -translate-y-10 pp"><i
+                    class="ri-play-large-fill"></i></button>
+        </div>
+        <div class="px-5">
+            <h1 class=" text-6xl text-[#C22229]">Tapari Momo</h1>
+            <p class=" text-sm pl-2">Jati Khayo Teti Mitho</p>
+            <div class="pt-10">
+                <h2 class="text-2xl pt-6 text-[#C22229]">Fast Food</h2>
+                <div class="p-1 py-3 flex justify-between ">
+                    <div class="flex gap-2">
+                        <img src="momo.jpg" class="h-20 w-20 object-cover" alt="">
+                        <div>
+                            <h3 class="text-lg">Chicken Momo</h3>
+                            <p class="text-xs">Juicy Momo</p>
+                        </div>
+                    </div>
+                    <div class="text-xl">
+                        ₹ 110
+                    </div>
+                </div>
+                <div class="p-1 py-3 flex justify-between ">
+                    <div class="flex gap-2">
+                        <img src="momo.jpg" class="h-20 w-20 object-cover" alt="">
+                        <div>
+                            <h3 class="text-lg">Chicken Momo</h3>
+                            <p class="text-xs">Juicy Momo</p>
+                        </div>
+                    </div>
+                    <div class="text-xl">
+                        ₹ 110
+                    </div>
+                </div>
+                <div class="p-1 py-3 flex justify-between ">
+                    <div class="flex gap-2">
+                        <img src="momo.jpg" class="h-20 w-20 object-cover" alt="">
+                        <div>
+                            <h3 class="text-lg">Chicken Momo</h3>
+                            <p class="text-xs">Juicy Momo</p>
+                        </div>
+                    </div>
+                    <div class="text-xl">
+                        ₹ 110
+                    </div>
+                </div>
+                <h2 class="text-2xl pt-6 text-[#C22229]">Fast Food</h2>
+                <div class="p-1 py-3 flex justify-between ">
+                    <div class="flex gap-2">
+                        <img src="momo.jpg" class="h-20 w-20 object-cover" alt="">
+                        <div>
+                            <h3 class="text-lg">Chicken Momo</h3>
+                            <p class="text-xs">Juicy Momo</p>
+                        </div>
+                    </div>
+                    <div class="text-xl">
+                        ₹ 110
+                    </div>
+                </div>
+                <div class="p-1 py-3 flex justify-between ">
+                    <div class="flex gap-2">
+                        <img src="momo.jpg" class="h-20 w-20 object-cover" alt="">
+                        <div>
+                            <h3 class="text-lg">Chicken Momo</h3>
+                            <p class="text-xs">Juicy Momo</p>
+                        </div>
+                    </div>
+                    <div class="text-xl">
+                        ₹ 110
+                    </div>
+                </div>
+                <div class="p-1 py-3 flex justify-between ">
+                    <div class="flex gap-2">
+                        <img src="momo.jpg" class="h-20 w-20 object-cover" alt="">
+                        <div>
+                            <h3 class="text-lg">Chicken Momo</h3>
+                            <p class="text-xs">Juicy Momo</p>
+                        </div>
+                    </div>
+                    <div class="text-xl">
+                        ₹ 110
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js" integrity="sha512-oJ8QbaQThQoJZ7oEv+29jfPM6CcP+zUxh3PKJs1vyOhx0UraUrE7PQgeItu3dOuCJyrzWpoYMsVjkkPEBzbUqw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        const vinyl = document.querySelector('.rott')
+        const secondsPerRotation = 3
+        const anim = gsap.to(vinyl, {
+            rotate: '360deg',
+            repeat: -1,
+            ease: "none",
+            duration: secondsPerRotation
+        }).pause()
+        const but = document.querySelector(".pp")
+        const music = document.querySelector(".music")
+        let stat = false
+
+        function updateButton() {
+            but.innerHTML = stat
+                ? `<i class="ri-pause-large-line"></i>`
+                : `<i class="ri-play-large-fill"></i>`
+        }
+
+        function syncVinylToMusic() {
+            if (dragging || !Number.isFinite(music.duration)) return
+
+            totalRotation = (music.currentTime / secondsPerRotation) * 360
+            anim.totalTime(music.currentTime, true)
+        }
+
+        let dragging = false
+        let lastAngle = 0
+        let dragCenter = null
+        let totalRotation = 0
+
+        function pointerAngle(event) {
+            const bounds = vinyl.getBoundingClientRect()
+            const center = dragCenter || {
+                x: bounds.left + bounds.width / 2,
+                y: bounds.top + bounds.height / 2
+            }
+
+            return Math.atan2(
+                event.clientY - center.y,
+                event.clientX - center.x
+            ) * 180 / Math.PI
+        }
+
+        vinyl.addEventListener('pointerdown', (event) => {
+            event.preventDefault()
+            const bounds = vinyl.getBoundingClientRect()
+            dragCenter = {
+                x: bounds.left + bounds.width / 2,
+                y: bounds.top + bounds.height / 2
+            }
+            dragging = true
+            lastAngle = pointerAngle(event)
+            // Store the absolute rotation represented by the current timestamp.
+            totalRotation = (music.currentTime / secondsPerRotation) * 360
+
+            // The vinyl is a scrubber: touching it always pauses the track.
+            stat = false
+            music.pause()
+            anim.pause()
+            updateButton()
+            vinyl.setPointerCapture(event.pointerId)
+            vinyl.classList.add('dragging')
+        })
+
+        vinyl.addEventListener('pointermove', (event) => {
+            if (!dragging || !Number.isFinite(music.duration)) return
+
+            const angle = pointerAngle(event)
+            let delta = angle - lastAngle
+
+            if (delta > 180) delta -= 360
+            if (delta < -180) delta += 360
+
+            // Track every point of the drag. A full 360° turn is 3 seconds.
+            const maxRotation = (music.duration / secondsPerRotation) * 360
+            totalRotation = Math.max(0, Math.min(maxRotation, totalRotation + delta))
+            gsap.set(vinyl, { rotation: totalRotation })
+            lastAngle = angle
+        })
+
+        function stopDragging(event) {
+            if (!dragging) return
+            dragging = false
+            dragCenter = null
+            vinyl.classList.remove('dragging')
+
+            if (vinyl.hasPointerCapture(event.pointerId)) {
+                vinyl.releasePointerCapture(event.pointerId)
+            }
+
+            // rotation / 360 gives turns; each turn represents 3 seconds.
+            if (Number.isFinite(music.duration)) {
+                music.currentTime = (totalRotation / 360) * secondsPerRotation
+            }
+
+            // Keep the record at the exact absolute rotation where it was released.
+            anim.totalTime(music.currentTime, true)
+        }
+
+        vinyl.addEventListener('pointerup', stopDragging)
+        vinyl.addEventListener('pointercancel', stopDragging)
+
+        music.addEventListener('loadedmetadata', syncVinylToMusic)
+        music.addEventListener('ended', () => {
+            stat = false
+            anim.pause()
+            updateButton()
+        })
+
+        but.addEventListener("click", async () => {
+            stat = !stat
+
+            if (stat) {
+                await music.play()
+                syncVinylToMusic()
+                anim.play()
+            } else {
+                music.pause()
+                syncVinylToMusic()
+                anim.pause()
+            }
+
+            updateButton()
+        })
+
+    </script>
+</body>
+
+</html>
